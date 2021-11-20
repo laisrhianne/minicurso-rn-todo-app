@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import uuid from 'react-native-uuid'
+import uuid from 'react-native-uuid';
+import Checkbox from 'expo-checkbox';
 
 import {
   Container,
@@ -20,6 +21,10 @@ export default function Home() {
   const [taskTitle, setTaskTitle] = useState('');
 
   function handleAddTask() {
+    if (!taskTitle) {
+      return;
+    }
+
     const id = uuid.v4();
     setTasks((oldValue) => [...oldValue, { id, title: taskTitle, done: false }]);
     setTaskTitle('');
@@ -27,6 +32,15 @@ export default function Home() {
 
   function handleDeleteTask(id) {
     setTasks((oldValue) => oldValue.filter((task) => task.id !== id));
+  }
+
+  function handleToggleTask(id) {
+    setTasks((oldTasks) => {
+      const newTasks = [...oldTasks];
+      const index = newTasks.findIndex((task) => task.id === id);
+      newTasks[index].done = !newTasks[index].done;
+      return newTasks;
+    });
   }
 
   return (
@@ -42,6 +56,7 @@ export default function Home() {
       </InputContainer>
       <TasksFlatlist data={tasks} renderItem={({item}) => (
         <TaskContainer>
+          <Checkbox value={item.done} onValueChange={() => handleToggleTask(item.id)}/>
           <TaskTitle>{item.title}</TaskTitle>
           <RemoveButtonContainer onPress={() => handleDeleteTask(item.id)}>
             <Icon name="trash-alt" />
